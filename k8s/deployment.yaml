@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shared-text-editor
+  labels:
+    app: shared-text-editor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shared-text-editor
+  template:
+    metadata:
+      labels:
+        app: shared-text-editor
+    spec:
+      containers:
+      - name: shared-text-editor
+        image: shared-text-editor:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: PORT
+          value: "3000"
+        - name: DATA_FILE
+          value: "/data/shared-text.txt"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: shared-text-editor-pvc
+
