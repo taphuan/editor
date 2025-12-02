@@ -10,7 +10,7 @@ kubectl apply -f pvc.yaml
 
 # Wait for PVC to be ready
 echo "Waiting for PVC to be ready..."
-kubectl wait --for=condition=Bound pvc/shared-text-editor-pvc --timeout=60s
+kubectl wait --for=condition=Bound pvc/editor-pvc --timeout=60s
 
 # Deploy application
 echo "Deploying application..."
@@ -28,16 +28,16 @@ fi
 
 # Wait for deployment to be ready
 echo "Waiting for deployment to be ready..."
-kubectl wait --for=condition=available deployment/shared-text-editor --timeout=120s
+kubectl wait --for=condition=available deployment/editor --timeout=120s
 
 echo ""
 echo "Deployment complete!"
 echo ""
 echo "To access the application:"
-echo "1. Port forward: kubectl port-forward service/shared-text-editor-service 3000:80"
+echo "1. Port forward: kubectl port-forward service/editor-service 3000:80"
 echo "2. Then open: http://localhost:3000"
 echo ""
 echo "Or if using ingress:"
-echo "Update your /etc/hosts file with: <ingress-ip> shared-text-editor.local"
-echo "Then open: http://shared-text-editor.local"
+echo "Update your /etc/hosts file with: <ingress-ip> editor.local"
+echo "Then open: http://editor.local"
 

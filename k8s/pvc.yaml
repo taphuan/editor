@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: shared-text-editor-pvc
+  name: editor-pvc
 spec:
   accessModes:
     - ReadWriteOnce

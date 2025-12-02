@@ -43,13 +43,13 @@ npm start
 Build the Docker image:
 
 ```bash
-docker build -t shared-text-editor:latest .
+docker build -t editor:latest .
 ```
 
 Run the container:
 
 ```bash
-docker run -d -p 3000:3000 -v $(pwd)/data:/data shared-text-editor:latest
+docker run -d -p 3000:3000 -v $(pwd)/data:/data editor:latest
 ```
 
 ## Kubernetes Deployment
@@ -63,8 +63,8 @@ docker run -d -p 3000:3000 -v $(pwd)/data:/data shared-text-editor:latest
 
 1. Build and push the Docker image to your registry:
 ```bash
-docker build -t your-registry/shared-text-editor:latest .
-docker push your-registry/shared-text-editor:latest
+docker build -t your-registry/editor:latest .
+docker push your-registry/editor:latest
 ```
 
 2. Update the image in `k8s/deployment.yaml` if using a different registry
@@ -92,8 +92,8 @@ kubectl get pvc
 ```
 
 5. Access the application:
-   - If using ingress: `http://shared-text-editor.local` (update hosts file if needed)
-   - Port forward: `kubectl port-forward service/shared-text-editor-service 3000:80`
+   - If using ingress: `http://editor.local` (update hosts file if needed)
+   - Port forward: `kubectl port-forward service/editor-service 3000:80`
    - Then access: `http://localhost:3000`
 
 ## Configuration

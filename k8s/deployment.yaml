@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shared-text-editor
+  name: editor
   labels:
-    app: shared-text-editor
+    app: editor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: shared-text-editor
+      app: editor
   template:
     metadata:
       labels:
-        app: shared-text-editor
+        app: editor
     spec:
       containers:
-      - name: shared-text-editor
-        image: shared-text-editor:latest
+      - name: editor
+        image: onceclick/editor
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
@@ -39,5 +39,5 @@ spec:
       volumes:
       - name: data-volume
         persistentVolumeClaim:
-          claimName: shared-text-editor-pvc
+          claimName: editor-pvc
 

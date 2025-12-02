@@ -1,5 +1,5 @@
 {
-  "name": "shared-text-editor",
+  "name": "editor",
   "version": "1.0.0",
   "description": "Simple shared text editor web application",
   "main": "server.js",
