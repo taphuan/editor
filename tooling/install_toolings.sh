@@ -22,11 +22,11 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if running as root
-if [ "$EUID" -eq 0 ]; then 
-    print_error "Please do not run this script as root"
-    exit 1
-fi
+## Check if running as root
+# if [ "$EUID" -eq 0 ]; then 
+#     print_error "Please do not run this script as root"
+#     exit 1
+# fi
 
 print_info "Starting developer tools installation for Ubuntu 24.04..."
 print_info "This script will install: Azure CLI, AWS CLI, Google Cloud SDK, kubectl, Terraform, Node.js, Python, Java"

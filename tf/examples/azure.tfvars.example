@@ -1,0 +1,73 @@
+cloud_provider = "azure"
+project_name   = "multi-cloud-vpc"
+environment    = "dev"
+region         = "eastus"
+
+vnet_cidr           = "10.0.0.0/16"
+public_subnet_cidrs = ["10.0.1.0/24"]
+private_subnet_cidrs = ["10.0.2.0/24", "10.0.3.0/24"]
+
+jumphost_instance_type = "Standard_B1s"
+
+# Optional: Provide your SSH public key, or leave empty to auto-generate
+# jumphost_ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB..."
+
+enable_jumphost = true
+
+# Multiple private VMs
+private_vms = [
+  {
+    name          = "app-server-1"
+    instance_type = "Standard_B1s"
+    subnet_index  = 0
+  },
+  {
+    name          = "app-server-2"
+    instance_type = "Standard_B1s"
+    subnet_index  = 0
+  }
+]
+
+# Databases (optional)
+# databases = [
+#   {
+#     name            = "postgres-db"
+#     engine          = "PostgreSQL"
+#     version         = "14"
+#     instance_class  = "GP_Gen5_2"
+#     allocated_storage = 32768  # MB
+#     subnet_index    = 0
+#     username        = "dbadmin"
+#     password        = "SecurePassword123!"
+#     port            = 5432
+#   }
+# ]
+
+# Storage accounts (optional)
+# storage_accounts = [
+#   {
+#     name            = "myappstorage"  # Must be globally unique, lowercase, 3-24 chars
+#     account_kind    = "StorageV2"
+#     account_tier    = "Standard"
+#     replication_type = "LRS"
+#   }
+# ]
+
+# Vaults (optional)
+# vaults = [
+#   {
+#     name = "my-app-vault"  # Must be globally unique
+#   }
+# ]
+
+tags = {
+  ManagedBy = "Terraform"
+  Project   = "MultiCloudVPC"
+}
+
+# Azure credentials (set via environment variables or terraform.tfvars)
+# azure_subscription_id = "your-subscription-id"
+# azure_client_id       = "your-client-id"
+# azure_client_secret   = "your-client-secret"
+# azure_tenant_id       = "your-tenant-id"
+

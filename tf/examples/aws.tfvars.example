@@ -1,0 +1,67 @@
+cloud_provider = "aws"
+project_name   = "multi-cloud-vpc"
+environment    = "dev"
+region         = "us-east-1"
+
+vpc_cidr            = "10.0.0.0/16"
+public_subnet_cidrs = ["10.0.1.0/24"]
+private_subnet_cidrs = ["10.0.2.0/24", "10.0.3.0/24"]
+
+jumphost_instance_type = "t3.micro"
+
+# Optional: Provide your SSH public key, or leave empty to auto-generate
+# jumphost_ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB..."
+
+enable_jumphost = true
+
+# Multiple private VMs
+private_vms = [
+  {
+    name          = "app-server-1"
+    instance_type = "t3.micro"
+    subnet_index  = 0
+  },
+  {
+    name          = "app-server-2"
+    instance_type = "t3.micro"
+    subnet_index  = 0
+  }
+]
+
+# Databases (optional)
+# databases = [
+#   {
+#     name            = "postgres-db"
+#     engine          = "postgresql"
+#     version         = "14.9"
+#     instance_class  = "db.t3.micro"
+#     allocated_storage = 20
+#     subnet_index    = 0
+#     username        = "dbadmin"
+#     password        = "SecurePassword123!"
+#     port            = 5432
+#   }
+# ]
+
+# Storage accounts (optional)
+# storage_accounts = [
+#   {
+#     name            = "my-app-storage"
+#     account_kind    = "StorageV2"
+#     account_tier    = "Standard"
+#     replication_type = "LRS"
+#   }
+# ]
+
+# Vaults (optional)
+# vaults = [
+#   {
+#     name = "app-secrets"
+#   }
+# ]
+
+tags = {
+  ManagedBy = "Terraform"
+  Project   = "MultiCloudVPC"
+}
+
