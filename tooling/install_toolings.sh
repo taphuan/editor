@@ -43,6 +43,42 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Timing variables
+declare -A INSTALL_TIMES
+START_TIME=""
+
+# Function to start timing
+start_timer() {
+    START_TIME=$(date +%s)
+}
+
+# Function to end timing and store result
+end_timer() {
+    local package_name=$1
+    local end_time=$(date +%s)
+    local duration=$((end_time - START_TIME))
+    INSTALL_TIMES["$package_name"]=$duration
+    echo -e "${GREEN}[TIME]${NC} $package_name: ${duration}s"
+}
+
+# Function to display all installation times
+display_install_times() {
+    echo ""
+    echo "=========================================="
+    echo "Installation Time Summary"
+    echo "=========================================="
+    local total_time=0
+    for package in "${!INSTALL_TIMES[@]}"; do
+        local time=${INSTALL_TIMES[$package]}
+        total_time=$((total_time + time))
+        printf "%-30s %6ss\n" "$package:" "$time"
+    done
+    echo "------------------------------------------"
+    printf "%-30s %6ss\n" "Total installation time:" "$total_time"
+    echo "=========================================="
+    echo ""
+}
+
 # Function to ensure base dependencies are installed
 ensure_base_dependencies() {
     print_info "Ensuring base dependencies are installed..."
@@ -80,9 +116,11 @@ install_az() {
 # Install AWS CLI v2
 # ============================================================================
 install_aws() {
+    start_timer
     print_info "Installing AWS CLI v2..."
     if command -v aws &> /dev/null; then
         print_warn "AWS CLI is already installed: $(aws --version)"
+        end_timer "AWS CLI"
         return 0
     fi
     
@@ -95,15 +133,18 @@ install_aws() {
     rm -rf awscliv2.zip aws
     cd "$original_dir"
     print_info "AWS CLI installed successfully"
+    end_timer "AWS CLI"
 }
 
 # ============================================================================
 # Install Google Cloud SDK
 # ============================================================================
 install_gcloud() {
+    start_timer
     print_info "Installing Google Cloud SDK..."
     if command -v gcloud &> /dev/null; then
         print_warn "Google Cloud SDK is already installed: $(gcloud --version | head -1)"
+        end_timer "Google Cloud SDK"
         return 0
     fi
     
@@ -113,15 +154,18 @@ install_gcloud() {
     sudo apt-get update
     sudo apt-get install -y google-cloud-sdk
     print_info "Google Cloud SDK installed successfully"
+    end_timer "Google Cloud SDK"
 }
 
 # ============================================================================
 # Install kubectl
 # ============================================================================
 install_kubectl() {
+    start_timer
     print_info "Installing kubectl..."
     if command -v kubectl &> /dev/null; then
         print_warn "kubectl is already installed: $(kubectl version --client --short 2>/dev/null || echo 'installed')"
+        end_timer "kubectl"
         return 0
     fi
     
@@ -130,17 +174,20 @@ install_kubectl() {
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     rm kubectl
     print_info "kubectl installed successfully"
+    end_timer "kubectl"
 }
 
 # ============================================================================
 # Install kustomize (latest)
 # ============================================================================
 install_kustomize() {
+    start_timer
     print_info "Installing kustomize (latest)..."
     
     if command -v kustomize &> /dev/null; then
         local INSTALLED_VERSION=$(kustomize version --short 2>/dev/null | awk '{print $1}' || kustomize version | head -1)
         print_warn "kustomize is already installed: $INSTALLED_VERSION"
+        end_timer "kustomize"
         return 0
     fi
     
@@ -167,12 +214,14 @@ install_kustomize() {
     rm kustomize_${VERSION_NUMBER}_linux_amd64.tar.gz
     cd "$original_dir"
     print_info "kustomize ${KUSTOMIZE_VERSION} installed successfully"
+    end_timer "kustomize"
 }
 
 # ============================================================================
 # Install Terraform 1.5.7
 # ============================================================================
 install_terraform() {
+    start_timer
     print_info "Installing Terraform 1.5.7..."
     local TERRAFORM_VERSION=1.5.7
     
@@ -182,6 +231,7 @@ install_terraform() {
         if [ "$INSTALLED_VERSION" != "$TERRAFORM_VERSION" ]; then
             print_info "Updating to Terraform $TERRAFORM_VERSION..."
         else
+            end_timer "Terraform"
             return 0
         fi
     fi
@@ -196,15 +246,18 @@ install_terraform() {
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     cd "$original_dir"
     print_info "Terraform $TERRAFORM_VERSION installed successfully"
+    end_timer "Terraform"
 }
 
 # ============================================================================
 # Install Node.js (Latest LTS)
 # ============================================================================
 install_nodejs() {
+    start_timer
     print_info "Installing Node.js (Latest LTS)..."
     if command -v node &> /dev/null; then
         print_warn "Node.js is already installed: $(node --version)"
+        end_timer "Node.js"
         return 0
     fi
     
@@ -212,12 +265,14 @@ install_nodejs() {
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
     sudo apt-get install -y nodejs
     print_info "Node.js installed successfully: $(node --version)"
+    end_timer "Node.js"
 }
 
 # ============================================================================
 # Install Python 3.14.x
 # ============================================================================
 install_python() {
+    start_timer
     print_info "Installing Python 3.14.x..."
     local PYTHON_VERSION=3.14
     
@@ -231,6 +286,13 @@ install_python() {
             sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.14 1
             sudo update-alternatives --set python3 /usr/bin/python3.14
         fi
+        # Ensure pip is up to date
+        if command -v pip3 &> /dev/null; then
+            print_info "Updating pip..."
+            python3 -m pip install --upgrade pip --user
+        fi
+        end_timer "Python"
+        return 0
     else
         ensure_base_dependencies
         
@@ -256,19 +318,21 @@ install_python() {
         fi
         
         print_info "Python 3.14 installed successfully: $(python3.14 --version)"
+        
+        # Ensure pip is up to date
+        if command -v pip3 &> /dev/null; then
+            print_info "Updating pip..."
+            python3 -m pip install --upgrade pip --user
+        fi
     fi
-    
-    # Ensure pip is up to date
-    if command -v pip3 &> /dev/null; then
-        print_info "Updating pip..."
-        python3 -m pip install --upgrade pip --user
-    fi
+    end_timer "Python"
 }
 
 # ============================================================================
 # Install OpenTofu 1.9
 # ============================================================================
 install_opentofu() {
+    start_timer
     print_info "Installing OpenTofu 1.9..."
     local OPENTOFU_VERSION=1.9.0
     
@@ -278,6 +342,7 @@ install_opentofu() {
         if [ "$INSTALLED_VERSION" != "v${OPENTOFU_VERSION}" ] && [ "$INSTALLED_VERSION" != "${OPENTOFU_VERSION}" ]; then
             print_info "Updating to OpenTofu ${OPENTOFU_VERSION}..."
         else
+            end_timer "OpenTofu"
             return 0
         fi
     fi
@@ -294,12 +359,14 @@ install_opentofu() {
     rm tofu_${OPENTOFU_VERSION}_linux_amd64.zip
     cd "$original_dir"
     print_info "OpenTofu ${OPENTOFU_VERSION} installed successfully"
+    end_timer "OpenTofu"
 }
 
 # ============================================================================
 # Install Packer 1.13.1
 # ============================================================================
 install_packer() {
+    start_timer
     print_info "Installing Packer 1.13.1..."
     local PACKER_VERSION=1.13.1
     
@@ -309,6 +376,7 @@ install_packer() {
         if [ "$INSTALLED_VERSION" != "${PACKER_VERSION}" ]; then
             print_info "Updating to Packer ${PACKER_VERSION}..."
         else
+            end_timer "Packer"
             return 0
         fi
     fi
@@ -325,12 +393,14 @@ install_packer() {
     rm packer_${PACKER_VERSION}_linux_amd64.zip
     cd "$original_dir"
     print_info "Packer ${PACKER_VERSION} installed successfully"
+    end_timer "Packer"
 }
 
 # ============================================================================
 # Install Packer AWS Plugin 1.3.8
 # ============================================================================
 install_packer_amz_plugin() {
+    start_timer
     print_info "Installing Packer AWS Plugin 1.3.8..."
     local PLUGIN_VERSION=1.3.8
     
@@ -347,6 +417,7 @@ install_packer_amz_plugin() {
     # Check if plugin already exists
     if [ -f "${PLUGIN_DIR}/packer-plugin-amazon" ]; then
         print_warn "Packer AWS plugin already exists"
+        end_timer "Packer AWS Plugin"
         return 0
     fi
     
@@ -362,12 +433,14 @@ install_packer_amz_plugin() {
     rm -f packer-plugin-amazon_${PLUGIN_VERSION}_linux_amd64.zip
     cd "$original_dir"
     print_info "Packer AWS Plugin ${PLUGIN_VERSION} installed successfully"
+    end_timer "Packer AWS Plugin"
 }
 
 # ============================================================================
 # Install Bazel 8.2.1
 # ============================================================================
 install_bazel() {
+    start_timer
     print_info "Installing Bazel 8.2.1..."
     local BAZEL_VERSION=8.2.1
     
@@ -377,6 +450,7 @@ install_bazel() {
         if [ "$INSTALLED_VERSION" != "${BAZEL_VERSION}" ]; then
             print_info "Updating to Bazel ${BAZEL_VERSION}..."
         else
+            end_timer "Bazel"
             return 0
         fi
     fi
@@ -394,12 +468,14 @@ install_bazel() {
     rm bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh
     cd "$original_dir"
     print_info "Bazel ${BAZEL_VERSION} installed successfully"
+    end_timer "Bazel"
 }
 
 # ============================================================================
 # Install Bazelish 1.16.0
 # ============================================================================
 install_bazelish() {
+    start_timer
     print_info "Installing Bazelish 1.16.0..."
     local BAZELISH_VERSION=1.16.0
     
@@ -412,21 +488,25 @@ install_bazelish() {
     # Check if bazelish is already installed
     if command -v bazelish &> /dev/null || npm list -g @bazel/bazelish &> /dev/null; then
         print_warn "Bazelish is already installed"
+        end_timer "Bazelish"
         return 0
     fi
     
     # Install bazelish globally via npm
     sudo npm install -g "@bazel/bazelish@${BAZELISH_VERSION}"
     print_info "Bazelish ${BAZELISH_VERSION} installed successfully"
+    end_timer "Bazelish"
 }
 
 # ============================================================================
 # Install Java (OpenJDK 21 LTS)
 # ============================================================================
 install_java() {
+    start_timer
     print_info "Installing Java (OpenJDK 21 LTS)..."
     if command -v java &> /dev/null; then
         print_warn "Java is already installed: $(java -version 2>&1 | head -1)"
+        end_timer "Java"
         return 0
     fi
     
@@ -443,6 +523,7 @@ install_java() {
         print_info "JAVA_HOME added to ~/.bashrc"
         print_warn "Run 'source ~/.bashrc' or restart your terminal for JAVA_HOME to take effect"
     fi
+    end_timer "Java"
 }
 
 # ============================================================================
@@ -576,6 +657,7 @@ install_cloud() {
     install_kustomize
     install_terraform
     print_info "Cloud tools installation completed!"
+    display_install_times
 }
 
 # ============================================================================
@@ -599,6 +681,7 @@ install_all() {
     install_java
     verify_installations
     print_info "All installations completed!"
+    display_install_times
 }
 
 # ============================================================================
