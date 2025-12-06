@@ -7,6 +7,7 @@
 #   install_aws             # Install AWS CLI
 #   install_gcloud          # Install Google Cloud SDK
 #   install_kubectl         # Install kubectl
+#   install_kustomize       # Install kustomize (latest)
 #   install_terraform       # Install Terraform 1.5.7
 #   install_opentofu        # Install OpenTofu 1.9
 #   install_packer          # Install Packer 1.13.1
@@ -16,6 +17,7 @@
 #   install_nodejs          # Install Node.js (LTS)
 #   install_python          # Install Python 3.14.x
 #   install_java            # Install Java (OpenJDK 21)
+#   install_cloud           # Install all cloud tools (az, aws, gcloud, kubectl, terraform)
 #   install_all             # Install all tools
 #   verify_installations    # Verify all installations
 #
@@ -128,6 +130,43 @@ install_kubectl() {
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     rm kubectl
     print_info "kubectl installed successfully"
+}
+
+# ============================================================================
+# Install kustomize (latest)
+# ============================================================================
+install_kustomize() {
+    print_info "Installing kustomize (latest)..."
+    
+    if command -v kustomize &> /dev/null; then
+        local INSTALLED_VERSION=$(kustomize version --short 2>/dev/null | awk '{print $1}' || kustomize version | head -1)
+        print_warn "kustomize is already installed: $INSTALLED_VERSION"
+        return 0
+    fi
+    
+    ensure_base_dependencies
+    local original_dir=$(pwd)
+    cd /tmp
+    
+    # Download and install kustomize
+    # Get the latest version
+    local KUSTOMIZE_VERSION=$(curl -s https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest | grep 'tag_name' | cut -d\" -f4 | sed 's/^kustomize\///')
+    
+    if [ -z "$KUSTOMIZE_VERSION" ]; then
+        # Fallback: use a known recent version
+        KUSTOMIZE_VERSION="v5.4.3"
+    fi
+    
+    # Remove 'v' prefix if present for download URL
+    local VERSION_NUMBER=$(echo $KUSTOMIZE_VERSION | sed 's/^v//')
+    
+    wget -q https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${VERSION_NUMBER}_linux_amd64.tar.gz
+    tar -xzf kustomize_${VERSION_NUMBER}_linux_amd64.tar.gz
+    sudo mv kustomize /usr/local/bin/
+    sudo chmod +x /usr/local/bin/kustomize
+    rm kustomize_${VERSION_NUMBER}_linux_amd64.tar.gz
+    cd "$original_dir"
+    print_info "kustomize ${KUSTOMIZE_VERSION} installed successfully"
 }
 
 # ============================================================================
@@ -444,6 +483,13 @@ verify_installations() {
         echo -e "${RED}✗${NC} kubectl: Not installed"
     fi
 
+    # Check kustomize
+    if command -v kustomize &> /dev/null; then
+        echo -e "${GREEN}✓${NC} kustomize: $(kustomize version --short 2>/dev/null | awk '{print $1}' || kustomize version | head -1)"
+    else
+        echo -e "${RED}✗${NC} kustomize: Not installed"
+    fi
+
     # Check Terraform
     if command -v terraform &> /dev/null; then
         echo -e "${GREEN}✓${NC} Terraform: $(terraform --version | head -1)"
@@ -519,6 +565,20 @@ verify_installations() {
 }
 
 # ============================================================================
+# Install all cloud tools (Azure CLI, AWS CLI, Google Cloud SDK, kubectl, kustomize, Terraform)
+# ============================================================================
+install_cloud() {
+    print_info "Installing cloud tools (Azure CLI, AWS CLI, Google Cloud SDK, kubectl, kustomize, Terraform)..."
+    install_az
+    install_aws
+    install_gcloud
+    install_kubectl
+    install_kustomize
+    install_terraform
+    print_info "Cloud tools installation completed!"
+}
+
+# ============================================================================
 # Install all tools
 # ============================================================================
 install_all() {
@@ -527,6 +587,7 @@ install_all() {
     install_aws
     install_gcloud
     install_kubectl
+    install_kustomize
     install_terraform
     install_opentofu
     install_packer
