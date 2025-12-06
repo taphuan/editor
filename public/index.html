@@ -122,6 +122,28 @@
             background: #e0e0e0;
         }
         
+        .btn-encrypt {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-encrypt:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-decrypt {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-decrypt:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+        
         .message {
             margin-top: 10px;
             padding: 12px;
@@ -161,6 +183,8 @@
             <textarea id="textEditor" placeholder="Start typing or paste your text here (up to 10MB)..."></textarea>
             
             <div class="button-group">
+                <button class="btn-encrypt" onclick="encryptText()">🔒 Encrypt</button>
+                <button class="btn-decrypt" onclick="decryptText()">🔓 Decrypt</button>
                 <button class="btn-refresh" onclick="loadText()">🔄 Refresh</button>
                 <button class="btn-save" onclick="saveText()">💾 Save</button>
             </div>
@@ -263,8 +287,53 @@
             }, 3000);
         }
         
+        function encryptText() {
+            const editor = document.getElementById('textEditor');
+            const text = editor.value;
+            
+            if (!text.trim()) {
+                showMessage('Please enter some text to encrypt.', 'error');
+                return;
+            }
+            
+            try {
+                // Encode to Base64
+                const encoded = btoa(unescape(encodeURIComponent(text)));
+                editor.value = encoded;
+                isDirty = true;
+                updateCharCount();
+                showMessage('Text encrypted successfully!', 'success');
+            } catch (error) {
+                console.error('Error encrypting text:', error);
+                showMessage('Error encrypting text. Please try again.', 'error');
+            }
+        }
+        
+        function decryptText() {
+            const editor = document.getElementById('textEditor');
+            const text = editor.value.trim();
+            
+            if (!text) {
+                showMessage('Please enter some Base64 encoded text to decrypt.', 'error');
+                return;
+            }
+            
+            try {
+                // Decode from Base64
+                const decoded = decodeURIComponent(escape(atob(text)));
+                editor.value = decoded;
+                isDirty = true;
+                updateCharCount();
+                showMessage('Text decrypted successfully!', 'success');
+            } catch (error) {
+                console.error('Error decrypting text:', error);
+                showMessage('Error decrypting text. Invalid Base64 format.', 'error');
+            }
+        }
+        
         // Initial character count
         updateCharCount();
     </script>
 </body>
 </html>
+
