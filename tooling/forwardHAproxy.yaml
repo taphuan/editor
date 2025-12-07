@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haproxy-ssh-proxy
+  labels:
+    app: haproxy-ssh-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy-ssh-proxy
+  template:
+    metadata:
+      labels:
+        app: haproxy-ssh-proxy
+    spec:
+      containers:
+      - name: haproxy
+        image: haproxy:2.8-alpine
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        env:
+        - name: SSH_TARGET_IP
+          value: "1.1.1.1"
+        - name: SSH_TARGET_PORT
+          value: "22"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          # Substitute environment variables in config file
+          sed -i "s/\${SSH_TARGET_IP}/${SSH_TARGET_IP}/g" /usr/local/etc/haproxy/haproxy.cfg
+          sed -i "s/\${SSH_TARGET_PORT}/${SSH_TARGET_PORT}/g" /usr/local/etc/haproxy/haproxy.cfg
+          # Start HAProxy
+          exec haproxy -f /usr/local/etc/haproxy/haproxy.cfg
+        volumeMounts:
+        - name: haproxy-config
+          mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          subPath: haproxy.cfg
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: haproxy-config
+        configMap:
+          name: haproxy-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+  labels:
+    app: haproxy-ssh-proxy
+data:
+  haproxy.cfg: |
+    global
+        log stdout format raw local0
+        maxconn 4096
+
+    defaults
+        mode tcp
+        log global
+        option tcplog
+        timeout connect 5000ms
+        timeout client 50000ms
+        timeout server 50000ms
+
+    # Frontend: Listen on port 80
+    frontend ssh_frontend
+        bind *:80
+        mode tcp
+        default_backend ssh_backend
+
+    # Backend: Forward to SSH server
+    backend ssh_backend
+        mode tcp
+        balance roundrobin
+        server ssh_server ${SSH_TARGET_IP}:${SSH_TARGET_PORT} check
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy-ssh-proxy-service
+  labels:
+    app: haproxy-ssh-proxy
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: haproxy-ssh-proxy
+
