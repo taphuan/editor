@@ -14,6 +14,9 @@ spec:
       labels:
         app: haproxy-ssh-proxy
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsNonRoot: false
       containers:
       - name: haproxy
         image: haproxy:2.8-alpine
@@ -31,9 +34,6 @@ spec:
         - -c
         - |
           set -e
-          # Substitute environment variables in config file
-          sed -i "s/\${SSH_TARGET_IP}/${SSH_TARGET_IP}/g" /usr/local/etc/haproxy/haproxy.cfg
-          sed -i "s/\${SSH_TARGET_PORT}/${SSH_TARGET_PORT}/g" /usr/local/etc/haproxy/haproxy.cfg
           # Start HAProxy
           exec haproxy -f /usr/local/etc/haproxy/haproxy.cfg
         volumeMounts:
@@ -93,7 +93,7 @@ data:
     backend ssh_backend
         mode tcp
         balance roundrobin
-        server ssh_server ${SSH_TARGET_IP}:${SSH_TARGET_PORT} check
+        server ssh_server 89.233.105.94:22 check
 
 ---
 apiVersion: v1
@@ -103,10 +103,11 @@ metadata:
   labels:
     app: haproxy-ssh-proxy
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 80
     targetPort: 80
+    nodePort: 30006
     protocol: TCP
     name: http
   selector:
