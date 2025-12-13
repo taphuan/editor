@@ -650,9 +650,9 @@ verify_installations() {
 # ============================================================================
 install_cloud() {
     print_info "Installing cloud tools (Azure CLI, AWS CLI, Google Cloud SDK, kubectl, kustomize, Terraform)..."
-    install_az
+    # install_az
     install_aws
-    install_gcloud
+    # install_gcloud
     install_kubectl
     install_kustomize
     install_terraform
