@@ -29,5 +29,5 @@ ENV PORT=3000
 ENV DATA_FILE=/data/shared-text.txt
 
 # Run the application
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "--http"]
 
