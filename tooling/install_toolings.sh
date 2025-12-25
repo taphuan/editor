@@ -255,8 +255,8 @@ install_terraform() {
 install_nodejs() {
     start_timer
     print_info "Installing Node.js (Latest LTS)..."
-    if command -v node &> /dev/null; then
-        print_warn "Node.js is already installed: $(node --version)"
+    if command -v npm &> /dev/null; then
+        print_warn "Node.js is already installed: $(npm -v)"
         end_timer "Node.js"
         return 0
     fi
