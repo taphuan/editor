@@ -39,7 +39,7 @@ const debugError = (...args) => {
 // Parse command line arguments
 const args = process.argv.slice(2);
 const useHttp = args.includes('--http') || args.includes('-h');
-const PORT = useHttp ? 8080 : 8443;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
