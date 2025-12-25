@@ -1,5 +1,9 @@
 FROM node:18-alpine
 
+# Install build dependencies: python3, make, g++, etc. 
+RUN apk add --no-cache python3 make g++ bash 
+ENV PYTHON=/usr/bin/python3
+
 # Set working directory
 WORKDIR /app
 
