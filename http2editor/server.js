@@ -267,84 +267,84 @@ app.post('/api/files/save', express.json(), (req, res) => {
 // Create server based on mode
 let server;
 
-if (useHttp) {
-  // HTTP mode - simple HTTP/1.1 server
-  console.log('🌐 Running in HTTP mode (no HTTPS)');
-  server = http.createServer(app);
-  
-  server.listen(PORT, () => {
-    console.log(`🚀 HTTP Editor Server running on http://localhost:${PORT}`);
-    console.log(`📝 Editor: http://localhost:${PORT}`);
-    console.log(`⚡ Terminal optimized for fast rendering`);
-    console.log(`⚠️  Note: Running without HTTPS (development only)`);
-  });
-} else {
-  // HTTPS mode - HTTP/2 secure server
-  const keyPath = path.join(__dirname, 'certs', 'server.key');
-  const certPath = path.join(__dirname, 'certs', 'server.crt');
+// if (useHttp) {
+// HTTP mode - simple HTTP/1.1 server
+console.log('🌐 Running in HTTP mode (no HTTPS)');
+server = http.createServer(app);
 
-  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-    console.error('❌ SSL certificates not found!');
-    console.log('📝 Please generate certificates first:');
-    console.log('   npm run generate-cert');
-    console.log('\n💡 Or run in HTTP mode: npm start -- --http');
-    console.log('   Or manually create certs/server.key and certs/server.crt');
-    process.exit(1);
-  }
+server.listen(PORT, () => {
+  console.log(`🚀 HTTP Editor Server running on http://localhost:${PORT}`);
+  console.log(`📝 Editor: http://localhost:${PORT}`);
+  console.log(`⚡ Terminal optimized for fast rendering`);
+  console.log(`⚠️  Note: Running without HTTPS (development only)`);
+});
+// } else {
+//   // HTTPS mode - HTTP/2 secure server
+//   const keyPath = path.join(__dirname, 'certs', 'server.key');
+//   const certPath = path.join(__dirname, 'certs', 'server.crt');
 
-  let options;
-  try {
-    options = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath),
-      allowHTTP1: true // Allow HTTP/1.1 fallback
-    };
-  } catch (error) {
-    console.error('❌ Error loading SSL certificates:', error.message);
-    process.exit(1);
-  }
+//   if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+//     console.error('❌ SSL certificates not found!');
+//     console.log('📝 Please generate certificates first:');
+//     console.log('   npm run generate-cert');
+//     console.log('\n💡 Or run in HTTP mode: npm start -- --http');
+//     console.log('   Or manually create certs/server.key and certs/server.crt');
+//     process.exit(1);
+//   }
 
-  // Create HTTP/2 secure server with Express
-  server = http2.createSecureServer(options, (req, res) => {
-    // Handle HTTP/2 push for critical resources
-    if (req.url === '/' && res.stream) {
-      try {
-        const stylesPath = path.join(__dirname, 'public', 'styles.css');
-        const appJsPath = path.join(__dirname, 'public', 'app.js');
+//   let options;
+//   try {
+//     options = {
+//       key: fs.readFileSync(keyPath),
+//       cert: fs.readFileSync(certPath),
+//       allowHTTP1: true // Allow HTTP/1.1 fallback
+//     };
+//   } catch (error) {
+//     console.error('❌ Error loading SSL certificates:', error.message);
+//     process.exit(1);
+//   }
+
+//   // Create HTTP/2 secure server with Express
+//   server = http2.createSecureServer(options, (req, res) => {
+//     // Handle HTTP/2 push for critical resources
+//     if (req.url === '/' && res.stream) {
+//       try {
+//         const stylesPath = path.join(__dirname, 'public', 'styles.css');
+//         const appJsPath = path.join(__dirname, 'public', 'app.js');
         
-        if (fs.existsSync(stylesPath)) {
-          res.stream.pushStream({ ':path': '/styles.css' }, (err, pushStream) => {
-            if (!err) {
-              pushStream.respond({ 'content-type': 'text/css' });
-              pushStream.end(fs.readFileSync(stylesPath));
-            }
-          });
-        }
+//         if (fs.existsSync(stylesPath)) {
+//           res.stream.pushStream({ ':path': '/styles.css' }, (err, pushStream) => {
+//             if (!err) {
+//               pushStream.respond({ 'content-type': 'text/css' });
+//               pushStream.end(fs.readFileSync(stylesPath));
+//             }
+//           });
+//         }
         
-        if (fs.existsSync(appJsPath)) {
-          res.stream.pushStream({ ':path': '/app.js' }, (err, pushStream) => {
-            if (!err) {
-              pushStream.respond({ 'content-type': 'application/javascript' });
-              pushStream.end(fs.readFileSync(appJsPath));
-            }
-          });
-        }
-      } catch (err) {
-        // Push failed, continue normally
-      }
-    }
+//         if (fs.existsSync(appJsPath)) {
+//           res.stream.pushStream({ ':path': '/app.js' }, (err, pushStream) => {
+//             if (!err) {
+//               pushStream.respond({ 'content-type': 'application/javascript' });
+//               pushStream.end(fs.readFileSync(appJsPath));
+//             }
+//           });
+//         }
+//       } catch (err) {
+//         // Push failed, continue normally
+//       }
+//     }
     
-    // Delegate to Express
-    app(req, res);
-  });
+//     // Delegate to Express
+//     app(req, res);
+//   });
 
-  server.listen(PORT, () => {
-    console.log(`🚀 HTTP/2 Editor Server running on https://localhost:${PORT}`);
-    console.log(`📝 Editor: https://localhost:${PORT}`);
-    console.log(`🔒 Using HTTP/2 with HTTPS`);
-    console.log(`⚡ Terminal optimized for fast rendering`);
-  });
-}
+//   server.listen(PORT, () => {
+//     console.log(`🚀 HTTP/2 Editor Server running on https://localhost:${PORT}`);
+//     console.log(`📝 Editor: https://localhost:${PORT}`);
+//     console.log(`🔒 Using HTTP/2 with HTTPS`);
+//     console.log(`⚡ Terminal optimized for fast rendering`);
+//   });
+// }
 
 server.on('error', (err) => {
   console.error('❌ Server error:', err.message);
