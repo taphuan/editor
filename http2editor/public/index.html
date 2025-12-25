@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP/2 Editor</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 HTTP/2 Editor</h1>
+            <div class="controls">
+                <button id="saveBtn" class="btn btn-primary">Save</button>
+                <button id="newFileBtn" class="btn">New File</button>
+                <select id="themeSelect" class="select">
+                    <option value="vs-dark">Dark</option>
+                    <option value="vs">Light</option>
+                    <option value="hc-black">High Contrast</option>
+                </select>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="file-explorer">
+                    <h3>Files</h3>
+                    <button id="refreshFiles" class="btn-small">Refresh</button>
+                    <ul id="fileList"></ul>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <div class="editor-panel">
+                    <div class="editor-container">
+                        <div id="editor"></div>
+                    </div>
+                </div>
+                
+                <div class="terminal-panel" id="terminalPanel">
+                    <div class="terminal-header">
+                        <span>Terminal</span>
+                        <div>
+                            <button id="toggleTerminal" class="btn-small" title="Toggle terminal size">⛶</button>
+                            <button id="clearTerminal" class="btn-small">Clear</button>
+                        </div>
+                    </div>
+                    <div id="terminal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load xterm.js first - use unpkg for better global support -->
+    <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <!-- Load Monaco Editor from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>
+

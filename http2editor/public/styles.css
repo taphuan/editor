@@ -1,0 +1,311 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    background: #252526;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+    flex-shrink: 0;
+}
+
+header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn {
+    padding: 8px 16px;
+    background: #0e639c;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #1177bb;
+}
+
+.btn-primary {
+    background: #007acc;
+}
+
+.btn-primary:hover {
+    background: #0098ff;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 11px;
+    background: #3e3e42;
+}
+
+.btn-small:hover {
+    background: #505050;
+}
+
+.select {
+    padding: 6px 10px;
+    background: #3e3e42;
+    color: #d4d4d4;
+    border: 1px solid #505050;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 250px;
+    background: #252526;
+    border-right: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.file-explorer {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.file-explorer h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #cccccc;
+}
+
+#fileList {
+    list-style: none;
+    margin-top: 10px;
+}
+
+#fileList li {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+#fileList li:hover {
+    background: #2a2d2e;
+}
+
+#fileList li.directory {
+    color: #4ec9b0;
+    font-weight: 500;
+}
+
+#fileList li.file {
+    color: #d4d4d4;
+}
+
+.editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0; /* Important for flex children */
+}
+
+.editor-container {
+    flex: 1;
+    overflow: hidden;
+}
+
+#editor {
+    width: 100%;
+    height: 100%;
+}
+
+.terminal-panel {
+    height: 400px;
+    min-height: 150px;
+    max-height: 90vh;
+    background: #1e1e1e;
+    border-top: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: relative;
+    /* Enable CSS resize handle - overflow must be visible, auto, scroll, or hidden (not none) */
+    resize: vertical;
+    overflow: hidden;
+}
+
+/* Make sure resize handle is visible and functional */
+.terminal-panel::-webkit-resizer {
+    background-color: #3e3e42;
+    border-top: 1px solid #505050;
+    border-left: 1px solid #505050;
+}
+
+/* Visual resize indicator - the actual resize handle is provided by CSS resize property */
+.terminal-panel::after {
+    content: '⋮';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    color: #505050;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    cursor: ns-resize;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+}
+
+.terminal-panel:hover::after {
+    color: #707070;
+}
+
+.terminal-panel.resized {
+    /* When manually resized, allow any size within limits */
+    min-height: 100px;
+}
+
+.terminal-header {
+    padding: 8px 15px;
+    background: #252526;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #cccccc;
+    flex-shrink: 0;
+    cursor: ns-resize;
+    user-select: none;
+}
+
+.terminal-header:hover {
+    background: #2d2d30;
+}
+
+.terminal-header > div {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.terminal-header button {
+    cursor: pointer;
+}
+
+#terminal {
+    flex: 1;
+    padding: 10px;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    position: relative;
+    min-height: 0; /* Important for flex children */
+}
+
+#terminal .xterm {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#terminal .xterm-viewport {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+}
+
+#terminal .xterm-screen {
+    width: 100% !important;
+    height: auto !important;
+}
+
+#terminal .xterm-scroll-area {
+    width: 100% !important;
+}
+
+#terminal .xterm-rows {
+    width: 100% !important;
+}
+
+/* Ensure text wraps instead of overlapping */
+#terminal .xterm-rows {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4e4e4e;
+}
+
+/* Performance optimizations */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#editor, #terminal {
+    will-change: contents;
+    transform: translateZ(0);
+}
+

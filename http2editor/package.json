@@ -1,0 +1,32 @@
+{
+  "name": "http2-editor",
+  "version": "1.0.0",
+  "description": "Online editor with terminal support over HTTP/2",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "start:http": "node server.js --http",
+    "dev": "node --watch server.js",
+    "dev:http": "node --watch server.js --http",
+    "generate-cert": "node scripts/generate-cert.js"
+  },
+  "keywords": [
+    "http2",
+    "editor",
+    "terminal",
+    "monaco",
+    "xterm"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "node-pty": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0"
+  }
+}
+
